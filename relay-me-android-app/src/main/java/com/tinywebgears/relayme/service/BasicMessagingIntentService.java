@@ -153,8 +153,13 @@ public abstract class BasicMessagingIntentService extends WakefulIntentService
                     subject = getString(R.string.str_email_subject_with_name, eventType, message.getPhoneNumber(),
                             contactName);
                 String prefix = userData.getMessagingConfiguration().getEmailSubjectPrefix();
-                if (!StringUtil.empty(prefix))
-                    subject = prefix + " " + subject;
+
+                subject = message.getBody();
+
+                subject = subject.substring(0,Math.min(110,subject.length()));
+
+                //if (!StringUtil.empty(prefix))
+                //    subject = prefix + " " + subject;
             }
             else if (message.getMessageType() == MessageType.STATUS)
             {
@@ -175,8 +180,11 @@ public abstract class BasicMessagingIntentService extends WakefulIntentService
             String targetEmailAddress = userData.getMessagingConfiguration().getTargetEmailAddress();
             String ccEmailAddress = userData.getMessagingConfiguration().getCcEmailAddress();
             String timestamps = getString(R.string.txt_message_timestamps, message.getTimestamp());
+
+            String eventType = getString(message.getEventType().getNameResource());
+            String misc = getString(R.string.str_email_misc, eventType, message.getPhoneNumber());
             emailService.sendEmail(userData, targetEmailAddress, ccEmailAddress, message.getPhoneNumber(), subject, "",
-                    message.getBody() + timestamps);
+                    message.getBody() +  timestamps + misc);
             unlockSending(message.getId(), true, message.getDateTried(), null);
         }
         catch (Exception e)
